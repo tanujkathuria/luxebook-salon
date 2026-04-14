@@ -4,11 +4,16 @@ import { CalendarIcon } from "lucide-react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { Input } from "@/components/ui/input";
 import ServiceCard from "@/components/ServiceCard";
 import TimeSlot from "@/components/TimeSlot";
 import { services, timeSlots, type Service } from "@/data/services";
+import axios from "axios";
 
 interface BookingFormProps {
   initialService?: Service | null;
@@ -22,7 +27,9 @@ interface BookingFormProps {
 }
 
 const BookingForm = ({ initialService, onSubmit }: BookingFormProps) => {
-  const [selectedService, setSelectedService] = useState<Service | null>(initialService || null);
+  const [selectedService, setSelectedService] = useState<Service | null>(
+    initialService || null
+  );
   const [date, setDate] = useState<Date>();
   const [selectedTime, setSelectedTime] = useState("");
   const [name, setName] = useState("");
@@ -32,15 +39,28 @@ const BookingForm = ({ initialService, onSubmit }: BookingFormProps) => {
 
   const canSubmit = selectedService && date && selectedTime && name && phone;
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!canSubmit) return;
-    onSubmit({
-      service: selectedService,
+    const { id, ...serviceWithoutId } = selectedService;
+    const val = {
+      service: serviceWithoutId,
       date: format(date, "PPP"),
-      time: selectedTime,
+      time: selectedTime.replace(/AM|PM/, "").trim(),
       customerName: name,
       customerPhone: phone,
-    });
+    };
+    try {
+      const response = await axios.post(
+        "http://localhost:8082/api/booking",
+        val
+      );
+      console.log("Booking successful:", response.data);
+      // Optionally, call onSubmit or handle success
+      onSubmit(response.data);
+    } catch (error) {
+      console.error("Error submitting booking:", error);
+      // Handle error (e.g., show an error message to the user)
+    }
   };
 
   const sectionVariants = {
@@ -51,20 +71,34 @@ const BookingForm = ({ initialService, onSubmit }: BookingFormProps) => {
   return (
     <div className="space-y-10">
       {/* Service Selection */}
-      <motion.section variants={sectionVariants} initial="hidden" animate="visible" transition={{ delay: 0.1 }}>
+      <motion.section
+        variants={sectionVariants}
+        initial="hidden"
+        animate="visible"
+        transition={{ delay: 0.1 }}
+      >
         <h2 className="mb-4 text-2xl font-display font-semibold text-foreground">
           Select a Service
         </h2>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {services.map((s) => (
-            <ServiceCard key={s.id} service={s} selected={selectedService?.id === s.id} onSelect={setSelectedService} />
+            <ServiceCard
+              key={s.id}
+              service={s}
+              selected={selectedService?.id === s.id}
+              onSelect={setSelectedService}
+            />
           ))}
         </div>
       </motion.section>
 
       {/* Date Selection */}
       {selectedService && (
-        <motion.section variants={sectionVariants} initial="hidden" animate="visible">
+        <motion.section
+          variants={sectionVariants}
+          initial="hidden"
+          animate="visible"
+        >
           <h2 className="mb-4 text-2xl font-display font-semibold text-foreground">
             Pick a Date
           </h2>
@@ -96,7 +130,11 @@ const BookingForm = ({ initialService, onSubmit }: BookingFormProps) => {
 
       {/* Time Selection */}
       {date && (
-        <motion.section variants={sectionVariants} initial="hidden" animate="visible">
+        <motion.section
+          variants={sectionVariants}
+          initial="hidden"
+          animate="visible"
+        >
           <h2 className="mb-4 text-2xl font-display font-semibold text-foreground">
             Choose a Time
           </h2>
@@ -116,7 +154,11 @@ const BookingForm = ({ initialService, onSubmit }: BookingFormProps) => {
 
       {/* Customer Details */}
       {selectedTime && (
-        <motion.section variants={sectionVariants} initial="hidden" animate="visible">
+        <motion.section
+          variants={sectionVariants}
+          initial="hidden"
+          animate="visible"
+        >
           <h2 className="mb-4 text-2xl font-display font-semibold text-foreground">
             Your Details
           </h2>

@@ -3,13 +3,30 @@ import { motion } from "framer-motion";
 import { Trash2, CalendarX } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import type { Booking } from "@/data/services";
+import axios from "axios";
 
 const Admin = () => {
   const [bookings, setBookings] = useState<Booking[]>([]);
 
+  // useEffect(() => {
+  //   const stored = JSON.parse(localStorage.getItem("bookings") || "[]");
+  //   setBookings(stored);
+  // }, []);
+
   useEffect(() => {
-    const stored = JSON.parse(localStorage.getItem("bookings") || "[]");
-    setBookings(stored);
+    const fetchBookings = async () => {
+      try {
+        const response = await axios.get("http://localhost:8082/api/booking"); // Replace with your API endpoint
+        setBookings(response.data); // Store the fetched data in state
+      } catch (err) {
+        console.error("Error fetching bookings:", err);
+        // setError("Failed to fetch bookings.");
+      } finally {
+        // setLoading(false); // Stop loading indicator
+      }
+    };
+
+    fetchBookings();
   }, []);
 
   const cancelBooking = (id: string) => {
@@ -30,7 +47,10 @@ const Admin = () => {
     <div className="min-h-screen bg-background">
       <Navbar />
       <div className="mx-auto max-w-4xl px-6 pb-20 pt-28">
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+        >
           <h1 className="mb-2 text-4xl font-bold font-display">
             Admin <span className="text-gradient-gold">Dashboard</span>
           </h1>
