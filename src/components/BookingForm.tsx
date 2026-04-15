@@ -44,14 +44,14 @@ const BookingForm = ({ initialService, onSubmit }: BookingFormProps) => {
     const { id, ...serviceWithoutId } = selectedService;
     const val = {
       service: serviceWithoutId,
-      date: format(date, "PPP"),
+      date: format(date, "yyyy-MM-dd"),
       time: selectedTime.replace(/AM|PM/, "").trim(),
       customerName: name,
       customerPhone: phone,
     };
     try {
       const response = await axios.post(
-        "http://localhost:8082/api/booking",
+        `${import.meta.env.VITE_API_BASE_URL}/api/booking`,
         val
       );
       console.log("Booking successful:", response.data);

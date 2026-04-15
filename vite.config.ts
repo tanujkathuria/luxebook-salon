@@ -8,8 +8,9 @@ export default defineConfig(({ mode }) => ({
   server: {
     proxy: {
       "/api": {
-        target: "http://localhost:8082",
+        target: "http://100.26.34.241:8082",
         changeOrigin: true,
+        secure: false, // Allow self-signed certificates
       },
     },
     host: "::",

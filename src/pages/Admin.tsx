@@ -16,7 +16,9 @@ const Admin = () => {
   useEffect(() => {
     const fetchBookings = async () => {
       try {
-        const response = await axios.get("http://localhost:8082/api/booking"); // Replace with your API endpoint
+        const response = await axios.get(
+          `${import.meta.env.VITE_API_BASE_URL}/api/booking`
+        ); // Use dynamic base URL); // Replace with your API endpoint
         setBookings(response.data); // Store the fetched data in state
       } catch (err) {
         console.error("Error fetching bookings:", err);
